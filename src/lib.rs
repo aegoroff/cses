@@ -29,6 +29,9 @@ macro_rules! run_test_suite {
                 results.push(success);
             }
         }
+        let success_tests = results.iter().filter(|r| **r).count();
+        let failed_tests = results.iter().filter(|r| !**r).count();
+        println!("Success tests: {success_tests} Failed tests: {failed_tests}");
         assert!(results.iter().all(|r| *r));
     }};
 }

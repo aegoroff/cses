@@ -32,10 +32,32 @@ pub fn solution<B: BufRead>(mut r: B) -> i32 {
         .collect();
 
     applicants.sort();
-    applicants.reverse();
     apartments.sort();
+    let mut booked: HashSet<usize> = HashSet::with_capacity(apartments.len());
 
-    1
+    let valid = |i: usize, appl: i32| apartments[i] >= appl - k;
+
+    for appl in &applicants {
+        let mut low = 0;
+        let mut high = apartments.len() - 1;
+        let mut size = high - low;
+        while high - low > 1 {
+            let mid = low + size / 2;
+
+            if valid(mid, *appl) && !booked.contains(&mid) {
+                high = mid;
+            } else {
+                low = mid;
+            }
+            size = high - low;
+        }
+
+        if valid(high, *appl) && apartments[high] <= appl + k {
+            booked.insert(high);
+        }
+    }
+
+    booked.len() as i32
 }
 
 fn read_lines<B: BufRead>(src: &mut B, n: i32) -> Vec<String> {
