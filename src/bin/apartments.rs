@@ -35,7 +35,8 @@ pub fn solution<B: BufRead>(mut r: B) -> i32 {
     apartments.sort();
     let mut booked: HashSet<usize> = HashSet::with_capacity(apartments.len());
 
-    let valid = |i: usize, appl: i32| apartments[i] >= appl - k;
+    let above_lower = |i: usize, appl: i32| apartments[i] >= appl - k;
+    let below_upper = |i: usize, appl: i32| apartments[i] <= appl + k;
 
     for appl in &applicants {
         let mut low = 0;
@@ -44,7 +45,7 @@ pub fn solution<B: BufRead>(mut r: B) -> i32 {
         while high - low > 1 {
             let mid = low + size / 2;
 
-            if valid(mid, *appl) && !booked.contains(&mid) {
+            if above_lower(mid, *appl) && !booked.contains(&mid) {
                 high = mid;
             } else {
                 low = mid;
@@ -52,9 +53,10 @@ pub fn solution<B: BufRead>(mut r: B) -> i32 {
             size = high - low;
         }
 
-        if valid(high, *appl) && apartments[high] <= appl + k {
+        if above_lower(high, *appl) && below_upper(high, *appl) {
             booked.insert(high);
-        } else if valid(low, *appl) && apartments[low] <= appl + k {
+        } else if apartments.len() == 2 && above_lower(low, *appl) && below_upper(low, *appl) {
+            // HACK if array len less then 3 - binary search dont start
             booked.insert(low);
         }
     }
