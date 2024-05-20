@@ -3,7 +3,33 @@ macro_rules! run_test_suite {
     ($suite_path:expr, $method:ident) => {{
         let paths = fs::read_dir($suite_path).unwrap();
         let mut files: Vec<_> = paths.flatten().map(|d| d.path()).collect();
-        files.sort();
+        files.sort_by(|x, y| {
+            let a = x.file_name().unwrap();
+            let b = y.file_name().unwrap();
+            let a = Path::new(a)
+                .file_stem()
+                .and_then(OsStr::to_str)
+                .unwrap()
+                .parse::<i32>()
+                .unwrap();
+            let b = Path::new(b)
+                .file_stem()
+                .and_then(OsStr::to_str)
+                .unwrap()
+                .parse::<i32>()
+                .unwrap();
+            match a.cmp(&b) {
+                Ordering::Equal => {
+                    let a = x.extension().unwrap();
+                    let b = y.extension().unwrap();
+                    let a = Path::new(a).file_stem().and_then(OsStr::to_str).unwrap();
+                    let b = Path::new(b).file_stem().and_then(OsStr::to_str).unwrap();
+                    a.cmp(&b)
+                }
+                v => v,
+            }
+        });
+
         let mut result = String::new();
         let mut results = vec![];
         for path in files {

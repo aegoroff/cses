@@ -54,6 +54,8 @@ pub fn solution<B: BufRead>(mut r: B) -> i32 {
 
         if valid(high, *appl) && apartments[high] <= appl + k {
             booked.insert(high);
+        } else if valid(low, *appl) && apartments[low] <= appl + k {
+            booked.insert(low);
         }
     }
 
@@ -79,6 +81,7 @@ fn read_lines<B: BufRead>(src: &mut B, n: i32) -> Vec<String> {
 }
 #[cfg(test)]
 mod tests {
+    use std::cmp::Ordering;
     use std::{
         ffi::OsStr,
         fs::{self, File},
