@@ -1,4 +1,5 @@
 use std::{
+    cmp::min,
     collections::HashSet,
     io::{self, BufRead, BufReader},
 };
@@ -33,6 +34,11 @@ pub fn solution<B: BufRead>(mut r: B) -> i32 {
 
     applicants.sort();
     apartments.sort();
+
+    if k >= apartments[apartments.len() - 1] {
+        return min(applicants.len(), apartments.len()) as i32;
+    }
+
     let mut booked: HashSet<usize> = HashSet::with_capacity(apartments.len());
 
     let above_lower = |i: usize, appl: i32| apartments[i] >= appl - k;
