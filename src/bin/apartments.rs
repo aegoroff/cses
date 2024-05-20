@@ -1,8 +1,4 @@
-use std::{
-    cmp::min,
-    collections::HashSet,
-    io::{self, BufRead, BufReader},
-};
+use std::io::{self, BufRead, BufReader};
 
 fn main() {
     let reader = BufReader::new(io::stdin());
@@ -35,43 +31,21 @@ pub fn solution<B: BufRead>(mut r: B) -> i32 {
     applicants.sort();
     apartments.sort();
 
-    if k >= apartments[apartments.len() - 1] {
-        return min(applicants.len(), apartments.len()) as i32;
+    let mut i = 0;
+    let mut j = 0;
+    let mut result = 0;
+
+    while i < n && j < m {
+        if apartments[j] >= applicants[i] - k && apartments[j] <= applicants[i] + k {
+            j += 1;
+            result += 1;
+        } else if apartments[j] < applicants[i] + k {
+            j += 1;
+            i -= 1;
+        }
+        i += 1;
     }
-
-    let mut booked: HashSet<usize> = HashSet::with_capacity(apartments.len());
-
-    let above_lower = |i: usize, appl: i32| apartments[i] >= appl - k;
-    let below_upper = |i: usize, appl: i32| apartments[i] <= appl + k;
-
-    for appl in &applicants {
-        let mut low = 0;
-        let mut high = apartments.len() - 1;
-        let mut size = high - low;
-        while high - low > 1 {
-            let mid = low + size / 2;
-
-            if above_lower(mid, *appl) && !booked.contains(&mid) {
-                high = mid;
-            } else {
-                low = mid;
-            }
-            size = high - low;
-        }
-        // HACK
-        if high > 0 && apartments[high - 1] == apartments[high] && !booked.contains(&(high - 1)) {
-            high -= 1;
-        }
-
-        if above_lower(high, *appl) && below_upper(high, *appl) {
-            booked.insert(high);
-        } else if apartments.len() == 2 && above_lower(low, *appl) && below_upper(low, *appl) {
-            // HACK if array len less then 3 - binary search dont start
-            booked.insert(low);
-        }
-    }
-
-    booked.len() as i32
+    result
 }
 
 fn read_lines<B: BufRead>(src: &mut B, n: i32) -> Vec<String> {
@@ -91,6 +65,7 @@ fn read_lines<B: BufRead>(src: &mut B, n: i32) -> Vec<String> {
 
     res
 }
+
 #[cfg(test)]
 mod tests {
     use std::cmp::Ordering;
