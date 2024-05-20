@@ -97,35 +97,12 @@ mod tests {
         path::Path,
     };
 
+    use cses::run_test_suite;
+
     use super::*;
 
     #[test]
     fn test_suite() {
-        let paths = fs::read_dir("/home/egr/Downloads/ferris_tests").unwrap();
-        let mut files: Vec<_> = paths.flatten().map(|d| d.path()).collect();
-        files.sort();
-        let mut result = String::new();
-        for path in files {
-            let file = path.file_name().unwrap();
-
-            let ext = Path::new(file).extension().and_then(OsStr::to_str).unwrap();
-
-            if ext == "in" {
-                let f = File::open(&path).unwrap();
-                let reader = BufReader::new(f);
-                result = format!("{}", solution(reader));
-            }
-            if ext == "out" {
-                let f = File::open(&path).unwrap();
-                let mut reader = BufReader::new(f);
-                let lines = read_lines(&mut reader, 1);
-                let expectation = lines[0].trim();
-                println!(
-                    "test: {} expected: {expectation} actual: {result}",
-                    path.display()
-                );
-                assert_eq!(result, expectation)
-            }
-        }
+        run_test_suite!("/home/egr/Downloads/ferris_tests", solution);
     }
 }
