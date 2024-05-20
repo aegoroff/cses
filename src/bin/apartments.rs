@@ -58,6 +58,10 @@ pub fn solution<B: BufRead>(mut r: B) -> i32 {
             }
             size = high - low;
         }
+        // HACK
+        if high > 0 && apartments[high - 1] == apartments[high] && !booked.contains(&(high - 1)) {
+            high -= 1;
+        }
 
         if above_lower(high, *appl) && below_upper(high, *appl) {
             booked.insert(high);
