@@ -31,15 +31,15 @@ pub fn solution<B: BufRead>(mut r: B) -> i32 {
     applicants.sort();
     apartments.sort();
 
-    let mut i = 0;
+    let mut i = 0i32;
     let mut j = 0;
     let mut result = 0;
 
-    while i < n && j < m {
-        if apartments[j] >= applicants[i] - k && apartments[j] <= applicants[i] + k {
+    while (i as usize) < n && j < m {
+        if apartments[j] >= applicants[i as usize] - k && apartments[j] <= applicants[i as usize] + k {
             j += 1;
             result += 1;
-        } else if apartments[j] < applicants[i] + k {
+        } else if apartments[j] < applicants[i as usize] + k {
             j += 1;
             i -= 1;
         }
