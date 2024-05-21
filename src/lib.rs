@@ -24,7 +24,7 @@ macro_rules! run_test_suite {
                     let b = y.extension().unwrap();
                     let a = Path::new(a).file_stem().and_then(OsStr::to_str).unwrap();
                     let b = Path::new(b).file_stem().and_then(OsStr::to_str).unwrap();
-                    a.cmp(&b)
+                    a.cmp(b)
                 }
                 v => v,
             }
