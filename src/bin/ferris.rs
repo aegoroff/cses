@@ -65,11 +65,7 @@ pub fn solution<B: BufRead>(mut r: B) -> i32 {
         count += 1;
     }
 
-    if count == 0 {
-        1
-    } else {
-        count
-    }
+    count
 }
 
 fn read_lines<B: BufRead>(src: &mut B, n: i32) -> Vec<String> {
