@@ -14,12 +14,9 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
     let m = parts[1].parse::<usize>().unwrap_or(0);
 
     let lines = read_lines(&mut r, 2);
-    let tickets_parts: Vec<&str> = lines[0].split_whitespace().collect();
-    let customers_parts: Vec<&str> = lines[1].split_whitespace().collect();
 
     let mut avaiable: BTreeMap<i32, i32> = BTreeMap::new();
-    for ticket in tickets_parts
-        .iter()
+    for ticket in lines[0].split_whitespace()
         .take(n)
         .map(|s| s.parse::<i32>().unwrap_or(0))
     {
@@ -28,8 +25,7 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
 
     let mut customers_prices = vec![-1; m];
 
-    for (ci, customer) in customers_parts
-        .iter()
+    for (ci, customer) in lines[1].split_whitespace()
         .take(m)
         .map(|s| s.parse::<i32>().unwrap_or(0))
         .enumerate()
