@@ -1,5 +1,4 @@
 use std::{
-    collections::HashSet,
     io::{self, BufRead, BufReader},
 };
 
@@ -26,43 +25,20 @@ pub fn solution<B: BufRead>(mut r: B) -> i32 {
 
     nums.sort();
 
-    let mut seated: HashSet<usize> = HashSet::with_capacity(nums.len());
     let mut count = 0;
-    for i in 0..nums.len() {
-        if seated.contains(&i) {
-            continue;
+    let mut r = nums.len() - 1;
+    for l in 0..nums.len() {
+        while l < r && nums[l] + nums[r] > x {
+            count += 1;
+            r -= 1;
         }
-        let current = nums[i];
-
-        let mut low = if i + 1 < nums.len() - 1 {
-            i + 1
-        } else {
-            nums.len() - 1
-        };
-        let mut high = nums.len() - 1;
-        let mut size = high - low;
-        while high - low > 1 {
-            let mid = low + size / 2;
-
-            if current + nums[mid] < x && !seated.contains(&mid) {
-                low = mid;
-            } else {
-                high = mid;
-            }
-            size = high - low;
-        }
-
-        let other = if seated.contains(&high) || current + nums[high] > x {
-            high - 1
-        } else {
-            high
-        };
-
-        if current + nums[other] <= x {
-            seated.insert(i);
-            seated.insert(other);
+        if r < l {
+            break;
         }
         count += 1;
+        if r > 0 {
+            r -= 1;
+        }
     }
 
     count
