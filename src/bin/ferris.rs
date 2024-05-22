@@ -1,6 +1,4 @@
-use std::{
-    io::{self, BufRead, BufReader},
-};
+use std::io::{self, BufRead, BufReader};
 
 fn main() {
     let reader = BufReader::new(io::stdin());
@@ -36,9 +34,7 @@ pub fn solution<B: BufRead>(mut r: B) -> i32 {
             break;
         }
         count += 1;
-        if r > 0 {
-            r -= 1;
-        }
+        r = r.saturating_sub(1);
     }
 
     count

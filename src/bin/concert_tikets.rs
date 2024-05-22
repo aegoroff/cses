@@ -17,12 +17,6 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
     let tickets_parts: Vec<&str> = lines[0].split_whitespace().collect();
     let customers_parts: Vec<&str> = lines[1].split_whitespace().collect();
 
-    let customers: Vec<i32> = customers_parts
-        .iter()
-        .take(m)
-        .map(|s| s.parse::<i32>().unwrap_or(0))
-        .collect();
-
     let mut avaiable: BTreeMap<i32, i32> = BTreeMap::new();
     for ticket in tickets_parts
         .iter()
@@ -32,10 +26,14 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
         avaiable.entry(ticket).and_modify(|c| *c += 1).or_insert(1);
     }
 
-    let mut customers_prices = vec![-1; customers.len()];
+    let mut customers_prices = vec![-1; m];
 
-    for ci in 0..customers.len() {
-        let customer = customers[ci];
+    for (ci, customer) in customers_parts
+        .iter()
+        .take(m)
+        .map(|s| s.parse::<i32>().unwrap_or(0))
+        .enumerate()
+    {
         if avaiable.is_empty() {
             continue;
         }
