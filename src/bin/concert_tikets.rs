@@ -1,6 +1,5 @@
-use std::{
-    io::{self, BufRead, BufReader},
-};
+use std::collections::BTreeMap;
+use std::io::{self, BufRead, BufReader};
 
 fn main() {
     let reader = BufReader::new(io::stdin());
@@ -18,46 +17,43 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
     let tickets_parts: Vec<&str> = lines[0].split_whitespace().collect();
     let customers_parts: Vec<&str> = lines[1].split_whitespace().collect();
 
-    let mut tikets: Vec<i32> = tickets_parts
-        .iter()
-        .take(n)
-        .map(|s| s.parse::<i32>().unwrap_or(0))
-        .collect();
     let customers: Vec<i32> = customers_parts
         .iter()
         .take(m)
         .map(|s| s.parse::<i32>().unwrap_or(0))
         .collect();
 
-    tikets.sort();
+    let mut avaiable: BTreeMap<i32, i32> = BTreeMap::new();
+    for ticket in tickets_parts
+        .iter()
+        .take(n)
+        .map(|s| s.parse::<i32>().unwrap_or(0))
+    {
+        avaiable.entry(ticket).and_modify(|c| *c += 1).or_insert(1);
+    }
 
     let mut customers_prices = vec![-1; customers.len()];
 
     for ci in 0..customers.len() {
-        let mut low = 0;
-        if tikets.len() == 0 {
-            break;
-        }
-        let mut high = tikets.len() - 1;
-        let mut size = high - low;
         let customer = customers[ci];
-        while size > 1 {
-            let mid = low + size / 2;
+        if avaiable.is_empty() {
+            continue;
+        }
+        let mut r = avaiable.range(..=customer);
+        let mut ticket = -1;
+        let mut counter = 0;
 
-            if tikets[mid] > customer {
-                high = mid;
-            } else {
-                low = mid;
-            }
-            size = high - low;
+        if let Some((k, v)) = r.next_back() {
+            ticket = *k;
+            counter = *v;
+            customers_prices[ci] = ticket;
+            counter -= 1;
         }
 
-        if tikets[high] <= customer {
-            customers_prices[ci] = tikets[high];
-            tikets.remove(high);
-        } else if tikets[low] <= customer {
-            customers_prices[ci] = tikets[low];
-            tikets.remove(low);
+        avaiable.entry(ticket).and_modify(|t| *t -= 1);
+
+        if counter == 0 {
+            avaiable.remove(&ticket);
         }
     }
 
