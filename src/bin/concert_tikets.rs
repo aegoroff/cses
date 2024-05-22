@@ -1,5 +1,4 @@
 use std::{
-    collections::HashSet,
     io::{self, BufRead, BufReader},
 };
 
@@ -33,10 +32,12 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
     tikets.sort();
 
     let mut customers_prices = vec![-1; customers.len()];
-    let mut sold: HashSet<usize> = HashSet::with_capacity(tikets.len());
 
     for ci in 0..customers.len() {
         let mut low = 0;
+        if tikets.len() == 0 {
+            break;
+        }
         let mut high = tikets.len() - 1;
         let mut size = high - low;
         let customer = customers[ci];
@@ -51,27 +52,12 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
             size = high - low;
         }
 
-        let upper = high;
-        low = 0;
-        high = upper;
-
-        size = high - low;
-
-        while size > 1 {
-            let mid = low + size / 2;
-
-            if sold.contains(&mid) {
-                high = mid;
-            } else {
-                low = mid;
-            }
-            size = high - low;
-        }
-
-        let ticket = tikets[low];
-        if ticket <= customer && !sold.contains(&low) {
-            customers_prices[ci] = ticket;
-            sold.insert(low);
+        if tikets[high] <= customer {
+            customers_prices[ci] = tikets[high];
+            tikets.remove(high);
+        } else if tikets[low] <= customer {
+            customers_prices[ci] = tikets[low];
+            tikets.remove(low);
         }
     }
 
