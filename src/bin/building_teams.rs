@@ -31,11 +31,9 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
 
     let mut success = true;
     for v in 1..=n {
-        if visited[(v - 1) as usize] == -1 {
-            if !dfs(&graph, &mut visited, v, 0) {
-                success = false;
-                break;
-            }
+        if visited[(v - 1) as usize] == -1 && !dfs(&graph, &mut visited, v, 0) {
+            success = false;
+            break;
         }
     }
 
@@ -47,17 +45,18 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
     }
 }
 
-fn dfs(graph: &HashMap<i32, Vec<i32>>, visited: &mut Vec<i32>, v: i32, color: i32) -> bool {
-    visited[(v - 1) as usize] = color;
-    if let Some(adj) = graph.get(&v) {
-        for u in adj {
-            let to_color = visited[(*u - 1) as usize];
-            if to_color == -1 {
-                if !dfs(graph, visited, *u, color ^ 1) {
+fn dfs(graph: &HashMap<i32, Vec<i32>>, visited: &mut [i32], v: i32, color: i32) -> bool {
+    let mut stack: Vec<(i32, i32)> = vec![(v, color)];
+    while let Some((v, color)) = stack.pop() {
+        visited[(v - 1) as usize] = color;
+        if let Some(adj) = graph.get(&v) {
+            for u in adj {
+                let to_color = visited[(*u - 1) as usize];
+                if to_color == -1 {
+                    stack.push((*u, color ^ 1));
+                } else if to_color == color {
                     return false;
                 }
-            } else if to_color == color {
-                return false;
             }
         }
     }
@@ -96,6 +95,6 @@ mod tests {
 
     #[test]
     fn test_suite() {
-        run_test_suite!("/home/egr/Downloads/building_teams_tests", solution, true);
+        run_test_suite!("/home/egr/Downloads/building_teams_tests", solution, false);
     }
 }
