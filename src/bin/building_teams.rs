@@ -1,7 +1,4 @@
-use std::{
-    collections::HashMap,
-    io::{self, BufRead, BufReader},
-};
+use std::io::{self, BufRead, BufReader};
 
 fn main() {
     let reader = BufReader::new(io::stdin());
@@ -17,7 +14,7 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
 
     let lines = read_lines(&mut r, m);
 
-    let mut graph: HashMap<i32, Vec<i32>> = (1..=n).map(|n| (n, vec![])).collect();
+    let mut graph: Vec<Vec<i32>> = vec![vec![]; n as usize];
     let mut visited: Vec<i32> = vec![-1; n as usize];
     for (a, b) in lines.iter().take(m as usize).map(|s| {
         let parts: Vec<&str> = s.split_whitespace().collect();
@@ -25,8 +22,8 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
         let to = parts[1].parse::<i32>().unwrap_or(0);
         (from, to)
     }) {
-        graph.get_mut(&a).unwrap().push(b);
-        graph.get_mut(&b).unwrap().push(a);
+        graph[(a - 1) as usize].push(b);
+        graph[(b - 1) as usize].push(a);
     }
 
     let mut success = true;
@@ -37,26 +34,25 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
         }
     }
 
-    let strings: Vec<String> = visited.into_iter().map(|c| (c + 1).to_string()).collect();
     if success {
+        let strings: Vec<String> = visited.into_iter().map(|c| (c + 1).to_string()).collect();
         (strings.join(" "), 2)
     } else {
         ("IMPOSSIBLE".to_owned(), 1)
     }
 }
 
-fn dfs(graph: &HashMap<i32, Vec<i32>>, visited: &mut [i32], v: i32, color: i32) -> bool {
+fn dfs(graph: &[Vec<i32>], visited: &mut [i32], v: i32, color: i32) -> bool {
     let mut stack: Vec<(i32, i32)> = vec![(v, color)];
     while let Some((v, color)) = stack.pop() {
         visited[(v - 1) as usize] = color;
-        if let Some(adj) = graph.get(&v) {
-            for u in adj {
-                let to_color = visited[(*u - 1) as usize];
-                if to_color == -1 {
-                    stack.push((*u, color ^ 1));
-                } else if to_color == color {
-                    return false;
-                }
+        let adj = &graph[(v - 1) as usize];
+        for u in adj {
+            let to_color = visited[(*u - 1) as usize];
+            if to_color == -1 {
+                stack.push((*u, color ^ 1));
+            } else if to_color == color {
+                return false;
             }
         }
     }
