@@ -9,26 +9,26 @@ fn main() {
 pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
     let lines = read_lines(&mut r, 1);
     let parts: Vec<&str> = lines[0].split_whitespace().collect();
-    let n = parts[0].parse::<i32>().unwrap_or(0);
+    let n = parts[0].parse::<usize>().unwrap_or(0);
     let m = parts[1].parse::<i32>().unwrap_or(0);
 
     let lines = read_lines(&mut r, m);
 
-    let mut graph: Vec<Vec<i32>> = vec![vec![]; n as usize];
-    let mut visited: Vec<i32> = vec![-1; n as usize];
+    let mut graph: Vec<Vec<usize>> = vec![vec![]; n];
+    let mut visited: Vec<i32> = vec![-1; n];
     for (a, b) in lines.iter().take(m as usize).map(|s| {
         let parts: Vec<&str> = s.split_whitespace().collect();
-        let from = parts[0].parse::<i32>().unwrap_or(0);
-        let to = parts[1].parse::<i32>().unwrap_or(0);
+        let from = parts[0].parse::<usize>().unwrap_or(0);
+        let to = parts[1].parse::<usize>().unwrap_or(0);
         (from, to)
     }) {
-        graph[(a - 1) as usize].push(b);
-        graph[(b - 1) as usize].push(a);
+        graph[a - 1].push(b - 1);
+        graph[b - 1].push(a - 1);
     }
 
     let mut success = true;
-    for v in 1..=n {
-        if visited[(v - 1) as usize] == -1 && !dfs(&graph, &mut visited, v, 0) {
+    for v in 0..n {
+        if visited[v] == -1 && !dfs(&graph, &mut visited, v, 0) {
             success = false;
             break;
         }
@@ -42,13 +42,13 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
     }
 }
 
-fn dfs(graph: &[Vec<i32>], visited: &mut [i32], v: i32, color: i32) -> bool {
-    let mut stack: Vec<(i32, i32)> = vec![(v, color)];
+fn dfs(graph: &[Vec<usize>], visited: &mut [i32], v: usize, color: i32) -> bool {
+    let mut stack: Vec<(usize, i32)> = vec![(v, color)];
     while let Some((v, color)) = stack.pop() {
-        visited[(v - 1) as usize] = color;
-        let adj = &graph[(v - 1) as usize];
+        visited[v] = color;
+        let adj = &graph[v];
         for u in adj {
-            let to_color = visited[(*u - 1) as usize];
+            let to_color = visited[*u];
             if to_color == -1 {
                 stack.push((*u, color ^ 1));
             } else if to_color == color {
