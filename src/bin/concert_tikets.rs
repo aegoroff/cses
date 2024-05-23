@@ -16,7 +16,8 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
     let lines = read_lines(&mut r, 2);
 
     let mut avaiable: BTreeMap<i32, i32> = BTreeMap::new();
-    for ticket in lines[0].split_whitespace()
+    for ticket in lines[0]
+        .split_whitespace()
         .take(n)
         .map(|s| s.parse::<i32>().unwrap_or(0))
     {
@@ -25,7 +26,8 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
 
     let mut customers_prices = vec![-1; m];
 
-    for (ci, customer) in lines[1].split_whitespace()
+    for (ci, customer) in lines[1]
+        .split_whitespace()
         .take(m)
         .map(|s| s.parse::<i32>().unwrap_or(0))
         .enumerate()
@@ -78,6 +80,7 @@ fn read_lines<B: BufRead>(src: &mut B, n: i32) -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
+    use cses::run_test_suite;
     use std::cmp::Ordering;
     use std::{
         ffi::OsStr,
@@ -89,61 +92,6 @@ mod tests {
 
     #[test]
     fn test_suite() {
-        let paths = fs::read_dir("/home/egr/Downloads/concert_tests").unwrap();
-        let mut files: Vec<_> = paths.flatten().map(|d| d.path()).collect();
-        files.sort_by(|x, y| {
-            let a = x.file_name().unwrap();
-            let b = y.file_name().unwrap();
-            let a = Path::new(a)
-                .file_stem()
-                .and_then(OsStr::to_str)
-                .unwrap()
-                .parse::<i32>()
-                .unwrap();
-            let b = Path::new(b)
-                .file_stem()
-                .and_then(OsStr::to_str)
-                .unwrap()
-                .parse::<i32>()
-                .unwrap();
-            match a.cmp(&b) {
-                Ordering::Equal => {
-                    let a = x.extension().unwrap();
-                    let b = y.extension().unwrap();
-                    let a = Path::new(a).file_stem().and_then(OsStr::to_str).unwrap();
-                    let b = Path::new(b).file_stem().and_then(OsStr::to_str).unwrap();
-                    a.cmp(b)
-                }
-                v => v,
-            }
-        });
-
-        let mut result = String::new();
-        let mut m = 0;
-        let mut results = vec![];
-        for path in files {
-            let file = path.file_name().unwrap();
-
-            let ext = Path::new(file).extension().and_then(OsStr::to_str).unwrap();
-
-            if ext == "in" {
-                let f = File::open(&path).unwrap();
-                let reader = BufReader::new(f);
-                (result, m) = solution(reader);
-            }
-            if ext == "out" {
-                let f = File::open(&path).unwrap();
-                let mut reader = BufReader::new(f);
-                let lines = read_lines(&mut reader, m as i32);
-                let expectation = lines.join("").trim_end().to_string();
-                let success = result == expectation;
-                println!("test:\t{} SUCCESS: {success}", path.display());
-                results.push(success);
-            }
-        }
-        let success_tests = results.iter().filter(|r| **r).count();
-        let failed_tests = results.iter().filter(|r| !**r).count();
-        println!("Success tests: {success_tests} Failed tests: {failed_tests}");
-        assert!(results.iter().all(|r| *r));
+        run_test_suite!("/home/egr/Downloads/concert_tests", solution, false);
     }
 }

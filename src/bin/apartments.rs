@@ -2,11 +2,11 @@ use std::io::{self, BufRead, BufReader};
 
 fn main() {
     let reader = BufReader::new(io::stdin());
-    let result = solution(reader);
+    let (result, _) = solution(reader);
     println!("{result}");
 }
 
-pub fn solution<B: BufRead>(mut r: B) -> i32 {
+pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
     let lines = read_lines(&mut r, 1);
     let parts: Vec<&str> = lines[0].split_whitespace().collect();
     let n = parts[0].parse::<usize>().unwrap_or(0);
@@ -36,7 +36,9 @@ pub fn solution<B: BufRead>(mut r: B) -> i32 {
     let mut result = 0;
 
     while (i as usize) < n && j < m {
-        if apartments[j] >= applicants[i as usize] - k && apartments[j] <= applicants[i as usize] + k {
+        if apartments[j] >= applicants[i as usize] - k
+            && apartments[j] <= applicants[i as usize] + k
+        {
             j += 1;
             result += 1;
         } else if apartments[j] < applicants[i as usize] + k {
@@ -45,7 +47,7 @@ pub fn solution<B: BufRead>(mut r: B) -> i32 {
         }
         i += 1;
     }
-    result
+    (result.to_string(), 1)
 }
 
 fn read_lines<B: BufRead>(src: &mut B, n: i32) -> Vec<String> {
@@ -81,6 +83,6 @@ mod tests {
 
     #[test]
     fn test_suite() {
-        run_test_suite!("/home/egr/Downloads/apartments_tests", solution);
+        run_test_suite!("/home/egr/Downloads/apartments_tests", solution, true);
     }
 }

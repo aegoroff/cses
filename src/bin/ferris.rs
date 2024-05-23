@@ -2,11 +2,11 @@ use std::io::{self, BufRead, BufReader};
 
 fn main() {
     let reader = BufReader::new(io::stdin());
-    let result = solution(reader);
+    let (result, _) = solution(reader);
     println!("{result}");
 }
 
-pub fn solution<B: BufRead>(mut r: B) -> i32 {
+pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
     let lines = read_lines(&mut r, 1);
     let parts: Vec<&str> = lines[0].split_whitespace().collect();
     let n = parts[0].parse::<usize>().unwrap_or(0);
@@ -37,7 +37,7 @@ pub fn solution<B: BufRead>(mut r: B) -> i32 {
         r = r.saturating_sub(1);
     }
 
-    count
+    (count.to_string(), 1)
 }
 
 fn read_lines<B: BufRead>(src: &mut B, n: i32) -> Vec<String> {
@@ -72,6 +72,6 @@ mod tests {
 
     #[test]
     fn test_suite() {
-        run_test_suite!("/home/egr/Downloads/ferris_tests", solution);
+        run_test_suite!("/home/egr/Downloads/ferris_tests", solution, true);
     }
 }

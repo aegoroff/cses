@@ -1,6 +1,6 @@
 #[macro_export]
 macro_rules! run_test_suite {
-    ($suite_path:expr, $method:ident) => {{
+    ($suite_path:expr, $method:ident, $details:expr) => {{
         let paths = fs::read_dir($suite_path).unwrap();
         let mut files: Vec<_> = paths.flatten().map(|d| d.path()).collect();
         files.sort_by(|x, y| {
@@ -31,6 +31,7 @@ macro_rules! run_test_suite {
         });
 
         let mut result = String::new();
+        let mut m = 0;
         let mut results = vec![];
         for path in files {
             let file = path.file_name().unwrap();
@@ -40,18 +41,22 @@ macro_rules! run_test_suite {
             if ext == "in" {
                 let f = File::open(&path).unwrap();
                 let reader = BufReader::new(f);
-                result = format!("{}", $method(reader));
+                (result, m) = $method(reader);
             }
             if ext == "out" {
                 let f = File::open(&path).unwrap();
                 let mut reader = BufReader::new(f);
-                let lines = read_lines(&mut reader, 1);
-                let expectation = lines[0].trim();
+                let lines = read_lines(&mut reader, m as i32);
+                let expectation = lines.join("").trim_end().to_string();
                 let success = result == expectation;
-                println!(
-                    "test:\t{} expected:\t{expectation} actual:\t{result}\tSUCCESS: {success}",
-                    path.display()
-                );
+                if $details {
+                    println!(
+                        "test:\t{} expected:\t{expectation} actual:\t{result}\tSUCCESS: {success}",
+                        path.display()
+                    );
+                } else {
+                    println!("test:\t{} SUCCESS: {success}", path.display());
+                }
                 results.push(success);
             }
         }
