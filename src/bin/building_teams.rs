@@ -80,6 +80,7 @@ fn read_lines<B: BufRead>(src: &mut B, n: i32) -> Vec<String> {
 
     res
 }
+
 #[cfg(test)]
 mod tests {
     use std::cmp::Ordering;
