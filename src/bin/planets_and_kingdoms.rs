@@ -1,7 +1,4 @@
-use std::{
-    collections::HashMap,
-    io::{self, BufRead, BufReader},
-};
+use std::io::{self, BufRead, BufReader};
 
 fn main() {
     let reader = BufReader::new(io::stdin());
@@ -17,30 +14,33 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
 
     let lines = read_lines(&mut r, m);
 
-    let mut graph: HashMap<i32, Vec<i32>> = (1..=n).map(|n| (n, vec![])).collect();
+    let mut reverse_graph: Vec<Vec<i32>> = vec![vec![]; n as usize];
+    let mut graph: Vec<Vec<i32>> = vec![vec![]; n as usize];
 
-    for (a, b) in lines.iter().take(m as usize).map(|s| {
+    for (from, to) in lines.iter().take(m as usize).map(|s| {
         let parts: Vec<&str> = s.split_whitespace().collect();
         let from = parts[0].parse::<i32>().unwrap_or(0);
         let to = parts[1].parse::<i32>().unwrap_or(0);
         (from, to)
     }) {
-        graph.get_mut(&b).unwrap().push(a);
+        reverse_graph[(to - 1) as usize].push(from - 1);
+        graph[(from - 1) as usize].push(to - 1);
     }
 
     let mut visited: Vec<i32> = vec![-1; n as usize];
     let mut sorted = Vec::with_capacity(n as usize);
-    for v in 1..=n {
-        if visited[(v - 1) as usize] == -1 {
-            dfs(&graph, &mut visited, &mut sorted, v, 1);
+    for v in 0..n {
+        if visited[v as usize] == -1 {
+            dfs(&reverse_graph, &mut visited, &mut sorted, v, 1);
         }
     }
+    sorted.reverse();
 
     let mut visited: Vec<i32> = vec![-1; n as usize];
     let mut new_sorted = Vec::with_capacity(n as usize);
     let mut color = 0;
     for v in sorted {
-        if visited[(v - 1) as usize] == -1 {
+        if visited[v as usize] == -1 {
             color += 1;
             dfs(&graph, &mut visited, &mut new_sorted, v, color);
         }
@@ -49,25 +49,16 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
     (format!("{color}\n{}", strings.join(" ")), 2)
 }
 
-fn dfs(
-    graph: &HashMap<i32, Vec<i32>>,
-    visited: &mut Vec<i32>,
-    sorted: &mut Vec<i32>,
-    v: i32,
-    color: i32,
-) {
-    visited[(v - 1) as usize] = color;
-    if let Some(adj) = graph.get(&v) {
-        for u in adj {
-            let to_color = visited[(*u - 1) as usize];
-            if to_color == -1 {
-                dfs(graph, visited, sorted, *u, color);
-            }
+fn dfs(graph: &Vec<Vec<i32>>, visited: &mut Vec<i32>, sorted: &mut Vec<i32>, v: i32, color: i32) {
+    visited[v as usize] = color;
+    for u in &graph[v as usize] {
+        let to_color = visited[*u as usize];
+        if to_color == -1 {
+            dfs(graph, visited, sorted, *u, color);
         }
-        sorted.push(v);
     }
+    sorted.push(v);
 }
-
 
 fn read_lines<B: BufRead>(src: &mut B, n: i32) -> Vec<String> {
     let mut res = vec![];
