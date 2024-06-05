@@ -39,6 +39,7 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
     }]);
 
     let mut visited = vec![i64::MIN; n as usize];
+    let mut len = vec![0; n as usize];
 
     while let Some(node) = q.pop() {
         let adj = &graph[node.vertex as usize];
@@ -53,7 +54,12 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
             };
 
             if next.weight > visited[next.vertex as usize] {
-                visited[next.vertex as usize] = next.weight;
+                let next_vertex = next.vertex as usize;
+                len[next_vertex] = len[node.vertex as usize] + 1;
+                if len[next_vertex] == n {
+                    return ("-1".to_string(), 1);
+                }
+                visited[next_vertex] = next.weight;
                 q.push(next);
             }
         }
