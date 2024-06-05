@@ -54,8 +54,8 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
                 weight: node.weight + a.weight,
             };
 
-            if visited[next.vertex as usize] < next.weight {
-                let next_vertex = next.vertex as usize;
+            let next_vertex = next.vertex as usize;
+            if visited[next_vertex] < next.weight {
                 visited[next_vertex] = next.weight;
                 if !in_queue[next_vertex] {
                     in_queue[next_vertex] = true;
