@@ -34,15 +34,14 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
             dfs(&reverse_graph, &mut visited, &mut sorted, v, 1);
         }
     }
-    sorted.reverse();
 
     let mut visited: Vec<i32> = vec![-1; n as usize];
     let mut new_sorted = Vec::with_capacity(n as usize);
     let mut color = 0;
-    for v in sorted {
-        if visited[v as usize] == -1 {
+    for v in sorted.iter().rev() {
+        if visited[*v as usize] == -1 {
             color += 1;
-            dfs(&graph, &mut visited, &mut new_sorted, v, color);
+            dfs(&graph, &mut visited, &mut new_sorted, *v, color);
         }
     }
     let strings: Vec<String> = visited.iter().map(|c| c.to_string()).collect();
