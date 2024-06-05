@@ -1,6 +1,6 @@
 use std::{
+    collections::VecDeque,
     io::{self, BufRead, BufReader},
-    {cmp::Ordering, collections::BinaryHeap},
 };
 
 fn main() {
@@ -33,39 +33,37 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
         });
     }
 
-    let mut q = BinaryHeap::from([Edge {
+    let mut q = VecDeque::from([Edge {
         vertex: 0,
         weight: 0,
     }]);
 
     let mut visited = vec![i64::MIN; n as usize];
-    let mut len = vec![0; n as usize];
+    let mut in_queue = vec![false; n as usize];
+    in_queue[0] = true;
 
-    while let Some(node) = q.pop() {
-        let adj = &graph[node.vertex as usize];
+    while let Some(node) = q.pop_front() {
         let current = visited[node.vertex as usize];
+        in_queue[node.vertex as usize] = false;
         if node.weight < current {
             continue;
         }
-        for a in adj {
+        for a in &graph[node.vertex as usize] {
             let next = Edge {
                 vertex: a.vertex,
                 weight: node.weight + a.weight,
             };
 
-            if next.weight > visited[next.vertex as usize] {
+            if visited[next.vertex as usize] < next.weight {
                 let next_vertex = next.vertex as usize;
-                len[next_vertex] = len[node.vertex as usize] + 1;
-                if len[next_vertex] == n {
-                    return ("-1".to_string(), 1);
-                }
                 visited[next_vertex] = next.weight;
-                q.push(next);
+                if !in_queue[next.vertex as usize] {
+                    in_queue[next.vertex as usize] = true;
+                    q.push_back(next);
+                }
             }
         }
     }
-    visited[0] = 0;
-    visited.sort();
     let result = visited[visited.len() - 1];
     (result.to_string(), 1)
 }
@@ -74,20 +72,6 @@ pub fn solution<B: BufRead>(mut r: B) -> (String, usize) {
 pub struct Edge {
     pub weight: i64,
     pub vertex: i32,
-}
-
-impl Ord for Edge {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.weight
-            .cmp(&other.weight)
-            .then_with(|| self.vertex.cmp(&other.vertex))
-    }
-}
-
-impl PartialOrd for Edge {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
 }
 
 fn read_lines<B: BufRead>(src: &mut B, n: i32) -> Vec<String> {
